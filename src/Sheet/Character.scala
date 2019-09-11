@@ -12,6 +12,9 @@ class Character {
 
   var Dead=false
 
+  var Experience=0
+  var Level=0
+
   def takeDamage(dmg:Int): Unit ={
     this.CurrentHP=this.CurrentHP-dmg
     if(this.CurrentHP<=0){
@@ -29,5 +32,23 @@ class Character {
       this.CurrentMP = this.CurrentMP - 10
       defender.takeDamage(dmg)
     }
+  }
+  def EXPgain(XP:Int): Unit ={
+    this.Experience=this.Experience+XP
+    var Levelsgained=(math.floor(this.Experience/1000)).toInt
+    this.Level=this.Level+Levelsgained
+    this.Experience=this.Experience-(Levelsgained*1000)
+    if (Levelsgained>=1){
+      this.Attack+=Levelsgained*10
+      this.Defense+=Levelsgained*10
+      this.MAtt+=Levelsgained*10
+      this.MDef+=Levelsgained*10
+      this.MaxHP+=Levelsgained*10
+      this.MaxMP+=Levelsgained*10
+    }
+  }
+  def KillCharacterGetXP(Char:Character): Unit ={
+    var DroppedXP=Char.MaxHP*20
+    this.EXPgain(DroppedXP)
   }
 }
