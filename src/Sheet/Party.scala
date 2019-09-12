@@ -1,7 +1,7 @@
 package Sheet
 
-class Party {
-  var PartyChar:List[Character]=List()
+class Party(var PartyChar:List[Character]) {
+  //var PartyChar:List[Character]=List()
   def DefeatParty(Defeated:Party): Unit ={
     var totalXP=0
     for(i<-Defeated.PartyChar){
