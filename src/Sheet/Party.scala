@@ -5,7 +5,7 @@ class Party(var PartyChar:List[Character]) {
   def DefeatParty(Defeated:Party): Unit ={
     var totalXP=0
     for(i<-Defeated.PartyChar){
-      totalXP+=i.Experience
+      totalXP+=i.PartyCharacterXP()
     }
     var NumberAliveVictors=0
     for(i<-this.PartyChar){

@@ -51,4 +51,8 @@ class Character {
     var DroppedXP=Char.MaxHP*20
     this.EXPgain(DroppedXP)
   }
+  def PartyCharacterXP(): Int ={
+    var DroppedXP=this.MaxHP*20
+    DroppedXP
+  }
 }
