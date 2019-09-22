@@ -15,14 +15,16 @@ class TestParty extends FunSuite{
     val char8:Character=new Character
     val party1:List[Character]=List(char1,char2,char3,char4)
     val party2:List[Character]=List(char5,char6,char7,char8)
-    char5.Experience=10
-    char6.Experience=20
-    char7.Experience=20
-    char8.Experience=10
+    char5.Experience=2000
+    char6.Experience=2000
+    char7.Experience=2000
+    char8.Experience=2000
+    char3.Dead=true
     char4.Dead=true
     val WinningParty:Party=new Party(party1)
     val LosingParty:Party=new Party(party2)
     WinningParty.DefeatParty(LosingParty)
-    assert(char1.Experience==20)
+    assert(char1.Level==4)
+    assert(char2.Level==4)
   }
 }

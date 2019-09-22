@@ -16,7 +16,7 @@ class Party(var PartyChar:List[Character]) {
     var XPSplit=totalXP/NumberAliveVictors
     for(i<-this.PartyChar){
       if(i.Dead==false){
-        i.Experience+=XPSplit
+        i.EXPgain(XPSplit)
       }
     }
   }
