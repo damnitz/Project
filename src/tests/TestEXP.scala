@@ -11,13 +11,12 @@ class TestEXP extends FunSuite {
   }
   test("kill"){
     val char2= new Character
-    char2.Attack=10
     val char3 = new Character
     char3.MaxHP=500
-    char3.CurrentHP=500
-    char2.KillCharacterGetXP(char3) // Char2 gains 10,000 EXP
-    assert(char2.Level==10)
-    assert(char2.Experience==0)
-    assert(char2.Attack==110)
+    char3.CurrentHP=500 //2500XP
+    char2.KillCharacterGetXP(char3) // Char2 gains 2500XP EXP
+    assert(char2.Level==2)
+    assert(char2.Experience==500)//leftover xp
+    assert(char2.Attack==70)
   }
 }

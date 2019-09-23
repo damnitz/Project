@@ -48,11 +48,11 @@ class Character {
     }
   }
   def KillCharacterGetXP(Char:Character): Unit ={
-    var DroppedXP=Char.MaxHP*20
+    var DroppedXP=Char.MaxHP*5
     this.EXPgain(DroppedXP)
   }
   def PartyCharacterXP(): Int ={
-    var DroppedXP=this.MaxHP*20
+    var DroppedXP=this.MaxHP*5
     DroppedXP
   }
 }
