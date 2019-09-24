@@ -13,8 +13,10 @@ class TestParty extends FunSuite{
     val char6:Character=new Character
     val char7:Character=new Character
     val char8:Character=new Character
+
     val party1:List[Character]=List(char1,char2,char3,char4)
     val party2:List[Character]=List(char5,char6,char7,char8)//each char drops 500XP each,2000XP total
+
     char3.Dead=true
     char4.Dead=true//so the remaining two chars on party1 get 1000XP each
     val WinningParty:Party=new Party(party1)
@@ -40,12 +42,16 @@ class TestParty extends FunSuite{
     val char3:Character=new Character
     val char4:Character=new Character
     val char5:Character=new Character
+
     char5.EXPgain(15000)//now char5 will have 250maxHP and will drop 1250XP as a result
+
     val char6:Character=new Character
     val char7:Character=new Character
     val char8:Character=new Character
+
     val party1:List[Character]=List(char1,char2,char3,char4)
     val party2:List[Character]=List(char5,char6,char7,char8)//each char drops 500XP each with the exception of char5 who drops 1250XP,2750 total
+
     char2.Dead=true//now only char1 is alive
     char3.Dead=true
     char4.Dead=true//so the remaining char left alive will gain 2750XP
@@ -72,12 +78,16 @@ class TestParty extends FunSuite{
     val char3:Character=new Character
     val char4:Character=new Character
     val char5:Character=new Character
+
     char5.EXPgain(15000)//now char5 will have 250maxHP and will drop 1250XP as a result
+
     val char6:Character=new Character
     val char7:Character=new Character
     val char8:Character=new Character
+
     val party1:List[Character]=List(char1,char2,char3,char4)
     val party2:List[Character]=List(char5,char6,char7,char8)//each char drops 500XP each with the exception of char5 who drops 1250XP,2750 total
+
     //nobody is dead, everyone gains 687.5XP(rounded down)
     val WinningParty:Party=new Party(party1)
     val LosingParty:Party=new Party(party2)
