@@ -1,9 +1,9 @@
 package tests
 import org.scalatest._
-import Sheet.Character
+import Sheet.{Character, Priest, Warrior}
 
 class TestMagicalAttack extends FunSuite{
-  test("MaGik"){
+  /*test("MaGik"){
     val char1:Character=new Character
     val char2:Character=new Character
     char1.MAtt=60
@@ -21,5 +21,26 @@ class TestMagicalAttack extends FunSuite{
     char3.MagicalAttack(char4)
     assert(char3.CurrentMP==8)
     assert(char4.CurrentHP==100)
+  }*/
+  test("priest heal"){
+    val war1:Character=new Warrior
+    val pri1:Character=new Priest
+    war1.takeDamage(30)
+    pri1.takeAction("Heal",war1)
+    assert(pri1.CurrentMP==100)
+    assert(war1.CurrentHP==170)
+    pri1.EXPgain(3000)
+
+    pri1.takeAction("Heal",war1)
+    assert(pri1.CurrentMP==80)
+    assert(war1.CurrentHP==200)
+
+    pri1.MagicalAttack(war1)
+    assert(pri1.CurrentMP==70)
+    assert(war1.CurrentHP==145)
+
+    pri1.takeAction("Heal",war1)
+    assert(war1.CurrentHP==195)
   }
+
 }

@@ -3,7 +3,7 @@ import org.scalatest._
 import Sheet.Character
 
 class TestTakeDamage extends FunSuite{
-  test("DMG"){
+  /*test("DMG"){
     val char1:Character=new Character
     var dmg1:Int=10
     char1.takeDamage(dmg1)
@@ -16,5 +16,5 @@ class TestTakeDamage extends FunSuite{
     char2.takeDamage(dmg2)
     assert(char2.CurrentHP==0)
     assert(char2.Dead==true)
-  }
+  }*/
 }

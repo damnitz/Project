@@ -4,7 +4,7 @@ import Sheet.Character
 import Sheet.Party
 
 class TestParty extends FunSuite{
-  test("party!"){
+  /*test("party!"){
     val char1:Character=new Character
     val char2:Character=new Character
     val char3:Character=new Character
@@ -107,5 +107,5 @@ class TestParty extends FunSuite{
     assert(char3.Attack==50)
     assert(char4.Attack==50)
 
-  }
+  }*/
 }

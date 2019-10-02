@@ -1,9 +1,8 @@
 package tests
 import org.scalatest._
-import Sheet.Character
-import Sheet.Party
+import Sheet.{Character, Party, Priest, Warrior}
 class TestEXP extends FunSuite {
-  test("XP=6900"){
+  /*test("XP=6900"){
     val char1 = new Character
     char1.EXPgain(6900)
     assert(char1.Level==6)
@@ -40,5 +39,30 @@ class TestEXP extends FunSuite {
     assert(char2.Level==4)
     assert(char2.Experience==0)//leftover xp
     assert(char2.Attack==90)
+  }*/
+  test("warrior rage"){
+    val war1:Character=new Warrior
+    assert(war1.MaxHP==200)
+    assert(war1.Attack==30)
+    assert(war1.skill1Flag==false)
+    war1.EXPgain(100000)
+
+    assert(war1.MaxHP==1200)
+    assert(war1.Level==100)
+    assert(war1.Attack==1030)
+    assert(war1.MAtt==0)
+    assert(war1.skill1Flag==true)
+  }
+  test("priest"){
+    val priest1:Character=new Priest
+    assert(priest1.skill1Flag==false)
+    assert(priest1.Attack==10)
+    assert(priest1.MaxMP==100)
+    priest1.EXPgain(12000)
+
+    assert(priest1.Level==12)
+    assert(priest1.MaxMP==340)
+    assert(priest1.Attack==130)
+    assert(priest1.skill1Flag==true)
   }
 }
