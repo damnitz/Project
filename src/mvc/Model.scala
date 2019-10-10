@@ -1,0 +1,5 @@
+package mvc
+
+class Model {
+
+}
