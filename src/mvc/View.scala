@@ -21,42 +21,26 @@ import scala.collection.mutable.ListBuffer
 object View extends JFXApp{
   def createMap():String={
     var tile:ListBuffer[Map[String,JsValue]]=ListBuffer()
-    for (y<-1 until 1000){
-      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+    for (y<-1 until 500){
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(false))
+      for(i<-1 until 10)
+      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+      tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+      //tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(false))
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
     }
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
-    tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
+
     println(tile)
-    /*for (y<-1 until 1000){
-      tile+=Map("type"->"","passable"->"true")
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"false"))
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"true"))
-      tile+=(Map("type"->"","passable"->"true"))
-    }*/
+
     val jsontiles:JsValue=Json.toJson(tile)
     var dimensions:Map[String,Int]=Map()
     dimensions+=("width"->1000)
-    dimensions+=("height"->1000)
+    dimensions+=("height"->830)
     val jsondimensions:JsValue=Json.toJson(dimensions)
     var map:Map[String,JsValue]=Map()
     map+=("mapSize"->jsondimensions)
@@ -90,6 +74,8 @@ object View extends JFXApp{
               height = 10
               fill = Color.Green
               counttiles += 1
+
+
               increment= math.floor(counttiles/100).toInt
             }
             this.allsquares.children.add(greensquare)
@@ -166,12 +152,10 @@ object View extends JFXApp{
   var allplayers:Group=new Group()
   var playergrp:Group=new Group()
   val parsed=Json.parse(createparty())
-  /*var playerlabel:Label=new Label(){
-    text="P"
-    translateX=250
-    translateY=250
-  }
-  var playerstackpane:StackPane=new StackPane()*/
+
+  /*if (location1.x < location2.x + dimension2.x && location2.x < location1.x + dimension1.x) { //start off seeing if any of the x values overlap
+    if (location1.y < location2.y + dimension2.y && location2.y < location1.y + dimension2.y)*/
+
   def update: Long => Unit = (time:Long)=>{
     val parsed=this.parsed
     val playerParty= (parsed \ "playerParty").as [Map[String,JsValue]]
@@ -179,8 +163,7 @@ object View extends JFXApp{
 
     var locationx:Double = playermovedX
     var locationy:Double = playermovedY
-    /*println("x: "+locationx)
-    println("y: "+locationy)*/
+
     var playerlocationmap:Map[String,Double]=Map()
     playerlocationmap += ("x"->locationx)
     playerlocationmap += ("y"->locationy)
@@ -197,6 +180,7 @@ object View extends JFXApp{
     allparties+=("otherParties"->Json.toJson(otherparties))
     val allpartiesjson=Json.toJson(allparties)
     val stringy = Json.stringify(allpartiesjson)
+
     for (i<-otherparties){
       val renderparty:Circle=new Circle(){
         translateX=i("location")("x").toString.toDouble
@@ -204,15 +188,19 @@ object View extends JFXApp{
         centerX=i("location")("x").toString.toDouble
         centerY=i("location")("y").toString.toDouble
         radius=8
-        if (i("inBattle").toString.toBoolean==true){fill=Color.Blue}
-        else{fill=Color.Purple}
+        if (i("inBattle").toString.toBoolean==true){fill=Color.Blue
+          stroke=Color.Orange}
+        else{fill=Color.Black}
       }
       var stackpane:StackPane=new StackPane()
+      var stackpane2:StackPane=new StackPane()
+
       var label:Label=new Label(){
-        text=i("level").toString
+        text="Level: "+i("level").toString + " InBattle: "+i("inBattle").toString
         translateX=i("location")("x").toString.toDouble
-        translateY=i("location")("y").toString.toDouble
+        translateY=i("location")("y").toString.toDouble-12
       }
+
       label.setTextFill(Color.web("#FFFFFF"))
       stackpane.children.addAll(renderparty,label)
       allplayers.children.add(stackpane)
@@ -226,6 +214,10 @@ object View extends JFXApp{
     playerstackpane.children.addAll(this.player,playerlabel)
     playergrp.children.add(playerstackpane)
     println(stringy)
+    /*allparties+=("playerParty"->playerpartyjson)
+    allparties+=("otherParties"->Json.toJson(otherparties))
+    val allpartiesjson=Json.toJson(allparties)
+    val stringy = Json.stringify(allpartiesjson)*/
   }
   AnimationTimer(View.update).start()
   var stackpane:StackPane=new StackPane()
@@ -243,3 +235,18 @@ object View extends JFXApp{
     }
   }
 }
+
+
+/*if ((playermovedX-4)<i("location")("x").toString.toDouble+4 && (playermovedX+4)<i("location")("x").toString.toDouble-4
+        && i("location")("x").toString.toDouble+4 < (playermovedX-4) && i("location")("x").toString.toDouble-4<(playermovedX+4)){
+        if((playermovedY-4)<i("location")("y").toString.toDouble+4 && (playermovedY+4)<i("location")("y").toString.toDouble-4
+          && i("location")("y").toString.toDouble+4 < (playermovedY-4) && i("location")("y").toString.toDouble-4<(playermovedY+4)){
+          collisions+=("inBattle"->true)
+          println(i+("inBattle"->Json.toJson(true)))
+
+        }
+      }
+      else{
+        collisions+=("inBattle"->false)
+        println(i+("inBattle"->Json.toJson(true)))
+      }*/
