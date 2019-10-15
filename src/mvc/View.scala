@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
 object View extends JFXApp{
   def createMap():String={
     var tile:ListBuffer[Map[String,JsValue]]=ListBuffer()
-    for (y<-1 until 500){
+    for (y<-1 until 200){
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(false))
       for(i<-1 until 10)
       tile+=Map("type"->Json.toJson(""),"passable"->Json.toJson(true))
@@ -68,10 +68,10 @@ object View extends JFXApp{
       for (y<-i.get("passable")){
         if(y.toString.toBoolean==true){
             var greensquare= new Rectangle() {
-              translateX=0-(1000*increment)
-              translateY=0+(10*increment)
-              width = 10
-              height = 10
+              translateX=0-(4000*increment)
+              translateY=0+(40*increment)
+              width = 40
+              height = 40
               fill = Color.Green
               counttiles += 1
 
@@ -82,10 +82,10 @@ object View extends JFXApp{
         }
         else if (y.toString=="false"){
           var redsquare= new Rectangle(){
-            translateX=0-(1000*increment)
-            translateY=0+(10*increment)
-            width = 10
-            height = 10
+            translateX=0-(4000*increment)
+            translateY=0+(40*increment)
+            width = 40
+            height = 40
             counttiles += 1
             increment= math.floor(counttiles/100).toInt
             fill = Color.Red
@@ -99,7 +99,7 @@ object View extends JFXApp{
   val player= new Circle(){
     translateX= 250
     translateY= 250
-    radius= 8
+    radius= 10
     fill=Color.Pink
   }
   var playermovedX=250
@@ -187,7 +187,7 @@ object View extends JFXApp{
         translateY=i("location")("y").toString.toDouble
         centerX=i("location")("x").toString.toDouble
         centerY=i("location")("y").toString.toDouble
-        radius=8
+        radius=10
         if (i("inBattle").toString.toBoolean==true){fill=Color.Blue
           stroke=Color.Orange}
         else{fill=Color.Black}
