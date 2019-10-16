@@ -152,6 +152,12 @@ object View extends JFXApp{
   var allplayers:Group=new Group()
   var playergrp:Group=new Group()
   val parsed=Json.parse(createparty())
+  /*var playerstackpane:StackPane=new StackPane()
+  var playerlabel:Label=new Label(){
+    text="P"
+    translateX=250
+    translateY=250
+  }*/
 
   /*if (location1.x < location2.x + dimension2.x && location2.x < location1.x + dimension1.x) { //start off seeing if any of the x values overlap
     if (location1.y < location2.y + dimension2.y && location2.y < location1.y + dimension2.y)*/
@@ -196,9 +202,9 @@ object View extends JFXApp{
       var stackpane2:StackPane=new StackPane()
 
       var label:Label=new Label(){
-        text="Level: "+i("level").toString + " InBattle: "+i("inBattle").toString
+        text=i("level").toString  //" InBattle: "+i("inBattle").toString
         translateX=i("location")("x").toString.toDouble
-        translateY=i("location")("y").toString.toDouble-12
+        translateY=i("location")("y").toString.toDouble
       }
 
       label.setTextFill(Color.web("#FFFFFF"))
@@ -212,12 +218,9 @@ object View extends JFXApp{
       translateY=250
     }
     playerstackpane.children.addAll(this.player,playerlabel)
-    playergrp.children.add(playerstackpane)
+    this.playergrp.children.add(playerstackpane)
     println(stringy)
-    /*allparties+=("playerParty"->playerpartyjson)
-    allparties+=("otherParties"->Json.toJson(otherparties))
-    val allpartiesjson=Json.toJson(allparties)
-    val stringy = Json.stringify(allpartiesjson)*/
+
   }
   AnimationTimer(View.update).start()
   var stackpane:StackPane=new StackPane()
