@@ -1,23 +1,33 @@
 package auth
 import akka.actor._
+
 import scala.util.hashing.MurmurHash3._
 import java.sql.{Connection, DriverManager, ResultSet}
-case class Register(username:String,password:String)
-case class Login(username:String,password:String)
-case class SaveGame(username:String,partyJSON:String)
-case class Error(errormsg:String)
 
-class AuthenticationSystem extends Actor {
-  val url = "jdbc:mysql://localhost/testschema"
+import scala.collection.mutable._
+
+case class Register(username: String, password: String)
+case class RegistrationResult(username: String, registered: Boolean, message: String)
+case class Login(username: String, password: String)
+case class SaveGame(username: String, charactersJSON: String)
+case class FailedLogin(username: String, message: String)
+case class Authenticated(username: String, charactersJSON: String)
+
+
+class AuthenticationSystem() extends Actor {
+  val url = "jdbc:mysql://localhost/project"
   val username = "root"
-  val password = "1"
+  val password = ""
   var connection: Connection = DriverManager.getConnection(url, username, password)
   var statement=connection.createStatement()
-  statement.execute("CREATE TABLE IF NOT EXISTS playerinfo (USERNAME VARCHAR , PASSWORD INT , JSON VARCHAR )")
-  def receive: Receive ={
+  statement.execute("CREATE TABLE IF NOT EXISTS playerinfo (USERNAME VARCHAR(200) ,JSON VARCHAR(10000)) ")
+  statement.execute("CREATE TABLE IF NOT EXISTS playerpass (USERNAME VARCHAR(200) ,PASSWORD INT) ")
+
+  override def receive: Receive ={
     case register:Register=>
       if(!register.username.isEmpty){
-        val result:ResultSet=statement.executeQuery("SELECT USERNAME FROM playerinfo")
+        val result:ResultSet=statement.executeQuery("SELECT USERNAME FROM playerpass")
+
         var usernametaken:Boolean=false
         while(result.next()){//iterating through the column of usernames trying to find if the username trying to register is in there
           val dbusername=result.getString("USERNAME")
@@ -25,24 +35,92 @@ class AuthenticationSystem extends Actor {
             usernametaken=true
           }
         }
+
         if (!usernametaken){//if username is not taken
           if(register.password.length>=5 && register.password.contains("#") && register.password.contains("@")){
             val hashedsaltpass:Int=stringHash(register.password+"SALT")
-            val prepared=connection.prepareStatement("INSERT INTO playerinfo VALUE (?,?,?)")
+            val prepared=connection.prepareStatement("INSERT INTO playerpass VALUES (?,?)")
             prepared.setString(1,register.username)
             prepared.setInt(2,hashedsaltpass)
-            prepared.execute()//next time split up the triple if statement
+            prepared.execute()
+            val prepared1=connection.prepareStatement("INSERT INTO playerinfo VALUES (?,?)")
+            prepared1.setString(1,register.username)
+            prepared1.setString(2,"No savefile created")
+            prepared1.execute()
+            sender() ! RegistrationResult(register.username,true,"You have successfully registered!")
+          }
+
+          else{//executed if password criteria are not met
+            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long, contain '#' and '@'. ")
           }
         }
+
         else{//executed if username is already in the database
-          sender() ! Error("This username has already been taken!")
+          //println("authsystem-usernametaken")
+          sender() ! RegistrationResult(register.username,false,"This username has already been taken!")
         }
       }
+
       else{//executed if username is blank
-        sender() ! Error("username cannot be blank")
+        //println("authsystem-blankusername")
+        sender() ! RegistrationResult(register.username,false,"Username cannot be blank")
       }
 
     case login:Login=>
+      val result:ResultSet=statement.executeQuery("SELECT * from playerpass")
+      val statement1=connection.createStatement()
+      val resultDB:ResultSet=statement1.executeQuery("SELECT * from playerinfo")
+      val hashedpass=stringHash(login.password+"SALT")
+      var registered:Boolean=false
+      var passcorrect:Boolean=false
+      var lstusername:ListBuffer[String]=ListBuffer()
+      var lstpass:ListBuffer[Int]=ListBuffer()
+      var lstjson:ListBuffer[String]=ListBuffer()
+
+      while(resultDB.next()){
+        val dbjso=resultDB.getString("JSON")
+        lstjson+=dbjso
+      }
+
+      while(result.next()){
+        val dbusername=result.getString("USERNAME")
+        val dbpass=result.getInt("PASSWORD")
+        lstusername+=dbusername
+        lstpass+=dbpass
+        if(login.username==dbusername){
+          registered=true
+        }
+      }
+      if(registered){
+        for(username<-lstusername){
+          for(password<-lstpass){
+            if(hashedpass==password && login.username==username ){
+              passcorrect=true
+            }
+          }
+        }
+        if(passcorrect){
+          var index:Int=0
+          for(username<-lstusername){
+            index+=1
+            if (login.username==username){
+              sender() ! Authenticated(login.username,lstjson.apply(index-1))
+            }
+          }
+        }
+        else{
+          sender() ! FailedLogin(login.username,"Your password is incorrect!")
+        }
+      }
+      else{
+        sender() ! FailedLogin(login.username,"You are not registered!")
+      }
     case savegame:SaveGame=>
+      val preparedsave=connection.prepareStatement("UPDATE playerinfo SET JSON=?WHERE USERNAME=?")
+      preparedsave.setString(2,savegame.username)
+      preparedsave.setString(1,savegame.charactersJSON)
+      preparedsave.execute()
+      //sender() ! Message("Saved!")
   }
 }
+//{"playerParty":{"location":{"x":250,"y":250},"level":5,"inBattle":false},"otherParties":[{"location":{"x":200,"y":200},"level":5,"inBattle":true},{"location":{"x":300.5,"y":300},"level":12,"inBattle":false}]}

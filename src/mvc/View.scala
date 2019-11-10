@@ -184,7 +184,9 @@ object View extends JFXApp{
     var allparties:Map[String,JsValue]=Map()
     allparties+=("playerParty"->playerpartyjson)
     allparties+=("otherParties"->Json.toJson(otherparties))
+    println(allparties)
     val allpartiesjson=Json.toJson(allparties)
+    //println(allpartiesjson)
     val stringy = Json.stringify(allpartiesjson)
 
     for (i<-otherparties){
@@ -219,7 +221,7 @@ object View extends JFXApp{
     }
     playerstackpane.children.addAll(this.player,playerlabel)
     this.playergrp.children.add(playerstackpane)
-    println(stringy)
+    //println(stringy)
 
   }
   AnimationTimer(View.update).start()
