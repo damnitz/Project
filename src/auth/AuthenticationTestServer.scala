@@ -1,6 +1,6 @@
 package auth
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import com.corundumstudio.socketio.{AckRequest, Configuration, SocketIOClient, SocketIOServer}
 import com.corundumstudio.socketio.listener._
 
@@ -29,15 +29,16 @@ class AuthenticationTestServer() extends Actor {
 
   override def receive: Receive = {
     //errors
+    //to auth system
     case register: Register=>
       authenticationSystem ! Register(register.username,register.password)
     case login: Login=>
       authenticationSystem ! Login(login.username,login.password)
     case saveGame: SaveGame=>
       authenticationSystem ! SaveGame(saveGame.username,saveGame.charactersJSON)
+      //to client
     case registrationResult: RegistrationResult=>
       usernametoclient(registrationResult.username).sendEvent("register_result",registrationResult.message)
-
     case failedLogin: FailedLogin =>
       usernametoclient(failedLogin.username).sendEvent("failed_login",failedLogin.message)
     case authenticated: Authenticated=>
@@ -67,6 +68,8 @@ class LoginListener(server:AuthenticationTestServer) extends DataListener[Array[
   override def onData(client: SocketIOClient, data: Array[String], ackSender: AckRequest): Unit = {
     val username:String=data.apply(0)
     val password:String=data.apply(1)
+    println("LoginListener")
+    println(username + password)
     server.self ! Login(username,password)
     if (!server.usernametoclient.contains(username)){
       server.usernametoclient+=(username->client)
@@ -79,5 +82,11 @@ class SaveListener(server:AuthenticationTestServer) extends DataListener[Array[S
     val username:String=data.apply(0)
     val json:String=data.apply(1)
     server.self ! SaveGame(username,json)
+  }
+}
+object Server{
+  def main(args: Array[String]): Unit = {
+    val actorSystem = ActorSystem()
+    val server=actorSystem.actorOf(Props(classOf[AuthenticationTestServer]))
   }
 }

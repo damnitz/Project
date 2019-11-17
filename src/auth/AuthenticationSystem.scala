@@ -3,7 +3,7 @@ import akka.actor._
 
 import scala.util.hashing.MurmurHash3._
 import java.sql.{Connection, DriverManager, ResultSet}
-
+import scala.util.Random
 import scala.collection.mutable._
 
 case class Register(username: String, password: String)
@@ -20,7 +20,7 @@ class AuthenticationSystem() extends Actor {
   val password = ""
   var connection: Connection = DriverManager.getConnection(url, username, password)
   var statement=connection.createStatement()
-  statement.execute("CREATE TABLE IF NOT EXISTS playerinfo (USERNAME VARCHAR(200) ,JSON VARCHAR(10000)) ")
+  statement.execute("CREATE TABLE IF NOT EXISTS playerinfo (USERNAME VARCHAR(200) ,JSON VARCHAR(10000),SALT VARCHAR(10)) ")
   statement.execute("CREATE TABLE IF NOT EXISTS playerpass (USERNAME VARCHAR(200) ,PASSWORD INT) ")
 
   override def receive: Receive ={
@@ -37,21 +37,41 @@ class AuthenticationSystem() extends Actor {
         }
 
         if (!usernametaken){//if username is not taken
+          val generatesalt=Random.alphanumeric.take(4).mkString
           if(register.password.length>=5 && register.password.contains("#") && register.password.contains("@")){
-            val hashedsaltpass:Int=stringHash(register.password+"SALT")
+            val hashedsaltpass:Int=stringHash(register.password+generatesalt)
             val prepared=connection.prepareStatement("INSERT INTO playerpass VALUES (?,?)")
             prepared.setString(1,register.username)
             prepared.setInt(2,hashedsaltpass)
             prepared.execute()
-            val prepared1=connection.prepareStatement("INSERT INTO playerinfo VALUES (?,?)")
+            val prepared1=connection.prepareStatement("INSERT INTO playerinfo VALUES (?,?,?)")
             prepared1.setString(1,register.username)
             prepared1.setString(2,"No savefile created")
+            prepared1.setString(3,generatesalt)
             prepared1.execute()
             sender() ! RegistrationResult(register.username,true,"You have successfully registered!")
           }
 
-          else{//executed if password criteria are not met
-            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long, contain '#' and '@'. ")
+          else if (register.password.length<5 && !register.password.contains("#") && !register.password.contains("@")){
+            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long, contain '#' and '@'.")
+          }
+          else if(!register.password.contains("#") && !register.password.contains("@")){
+            sender() ! RegistrationResult(register.username,false,"Your password must contain '#' and '@'.")
+          }
+          else if(register.password.length<5 && !register.password.contains("@")){
+            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long and contain '@'.")
+          }
+          else if(register.password.length<5 && !register.password.contains("#")){
+            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long and contain '#'.")
+          }
+          else if(!register.password.contains("@")){
+            sender() ! RegistrationResult(register.username,false,"Your password must contain '@'.")
+          }
+          else if(!register.password.contains("#")){
+            sender() ! RegistrationResult(register.username,false,"Your password must contain '#'.")
+          }
+          else if(register.password.length<5){
+            sender() ! RegistrationResult(register.username,false,"Your password must be atleast 5 characters long.")
           }
         }
 
@@ -70,7 +90,17 @@ class AuthenticationSystem() extends Actor {
       val result:ResultSet=statement.executeQuery("SELECT * from playerpass")
       val statement1=connection.createStatement()
       val resultDB:ResultSet=statement1.executeQuery("SELECT * from playerinfo")
-      val hashedpass=stringHash(login.password+"SALT")
+      val getSalt=connection.prepareStatement("SELECT SALT from playerinfo WHERE USERNAME=?")
+      getSalt.setString(1,login.username)
+      val salt=getSalt.executeQuery()
+      var realsalt:String=""
+      while(salt.next()){
+        val slt=salt.getString("SALT")
+
+        realsalt=slt
+      }
+      println(realsalt)
+      val hashedpass=stringHash(login.password+realsalt)
       var registered:Boolean=false
       var passcorrect:Boolean=false
       var lstusername:ListBuffer[String]=ListBuffer()
